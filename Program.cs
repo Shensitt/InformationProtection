@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Collections.Specialized;
+using System.Text;
 
 string s = "hello world";
 byte[] ascii = Encoding.UTF8.GetBytes(s);
@@ -58,7 +60,30 @@ for (int i = 16; i <= 65; i++)
         result32 += "0";
 }
 
-Console.WriteLine(result32);
+List<string> result32array = [string.Empty];
+
+int resultArrayIter = 0;
+foreach (var c in result32.ToCharArray())
+{
+    if (c != ' ')
+        result32array[resultArrayIter] += c;
+    else
+    {
+        resultArrayIter++;
+        result32array.Add(string.Empty);
+    }
+}
+
+result32array.Remove(string.Empty);
+result32array.Remove(result32array.Last());
+result32array.Remove(result32array.Last());
+
+result32array = Convert32WordArray(result32array);
+
+foreach (var str in result32array)
+    Console.WriteLine(str);
+
+//Console.WriteLine(result32array.Count());
 
 
 string Get01Code(byte b)
@@ -85,4 +110,123 @@ string Get01Code(byte b)
         result = 0 + result;
 
     return result;
+}
+
+List<string> Convert32WordArray(List<string> words)
+{
+    for (int i = 16; i < 64; i++)
+    {
+        string s0 = string.Empty;
+
+        var w1 = RightRotate(7, words[i - 15]);
+        var w2 = RightRotate(18, words[i - 15]);
+        var w3 = RightShift(3, words[i - 15]);
+
+        //s0=w1 xor w2 xor w3
+        s0 = ConvertXOR(w1, w2, w3);
+
+
+        string s1 = string.Empty;
+
+        var w10 = RightRotate(17, words[i - 2]);
+        var w20 = RightRotate(19, words[i - 2]);
+        var w30 = RightShift(10, words[i - 2]);
+
+        //s0=w1 xor w2 xor w3
+        s1 = ConvertXOR(w10, w20, w30);
+
+
+        words[i] = CountWord(words[i-16], s0, words[i-7], w1);
+    }
+
+    return words;
+}
+
+string RightRotate(int rotations, string str)
+{
+    var w1 = str.ToCharArray();
+
+    for (int a = 0; a < rotations; a++)
+    {
+        var last = w1.Last();
+        for (int b = 0; b < 32; b++)
+        {
+            if (b != 31)
+                w1[b + 1] = w1[b];
+        }
+        w1[0] = last;
+    }
+    
+    return str;
+}
+
+string RightShift(int shifts, string str)
+{
+    var w1 = str.ToCharArray();
+
+    for (int a = 0; a < shifts; a++)
+    {
+        var last = w1.Last();
+        for (int b = 0; b < 32; b++)
+        {
+            if (b != 31)
+                w1[b + 1] = w1[b];
+        }
+        w1[0] = '0';
+    }
+
+    return str;
+}
+
+string ConvertXOR (string w1, string w2, string w3)
+{
+    var str = new char[32];
+    var c1 = w1.ToCharArray();
+    var c2 = w2.ToCharArray();
+    var c3 = w3.ToCharArray();
+
+    for (int i = 0; i < 32; i++)
+    {
+        if (c1[i]==0)
+        {
+            if (c2[i] == 0)
+            {
+                if (c3[i] == 0)
+                    str[i] = '0';
+                else
+                    str[i] = '1';
+            }
+            else
+            {
+                if (c3[i] == 0)
+                    str[i] = '1';
+                else
+                    str[i] = '0';
+            }
+        }
+        else
+        {
+            if (c2[i] == 0)
+            {
+                if (c3[i] == 0)
+                    str[i] = '1';
+                else
+                    str[i] = '0';
+            }
+            else
+            {
+                if (c3[i] == 0)
+                    str[i] = '0';
+                else
+                    str[i] = '1';
+            }
+        }
+    }
+
+    return str.ToString();
+}
+
+string CountWord(string w1, string s0, string w2, string s1)
+{
+
 }
