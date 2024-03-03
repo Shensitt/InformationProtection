@@ -66,23 +66,42 @@ result32array.RemoveAt(64);
 
 result32array = Convert32WordArray(result32array);
 
-Console.WriteLine();
-foreach (var str in result32array)
-    Console.WriteLine(str);
+//Console.WriteLine();
+//foreach (var str in result32array)
+//    Console.WriteLine(str);
 
 ///////////////////////////////////////////////////////all good
 //// значения хеша (8)
-var h0 = 0x6a09e667;
-var h1 = 0xbb67ae85;
-var h2 = 0x3c6ef372;
-var h3 = 0xa54ff53a;
-var h4 = 0x510e527f;
-var h5 = 0x9b05688c;
-var h6 = 0x1f83d9ab;
-var h7 = 0x5be0cd19;
+uint h0 = 0x6a09e667;
+uint h1 = 0xbb67ae85;
+uint h2 = 0x3c6ef372;
+uint h3 = 0xa54ff53a;
+uint h4 = 0x510e527f;
+uint h5 = 0x9b05688c;
+uint h6 = 0x1f83d9ab;
+uint h7 = 0x5be0cd19;
 
 ////округленные конгстанты (64)
-//string consts = "0x428a2f98 0x71374491 0xb5c0fbcf 0xe9b5dba5 0x3956c25b 0x59f111f1 0x923f82a4 0xab1c5ed5\r\n0xd807aa98 0x12835b01 0x243185be 0x550c7dc3 0x72be5d74 0x80deb1fe 0x9bdc06a7 0xc19bf174\r\n0xe49b69c1 0xefbe4786 0x0fc19dc6 0x240ca1cc 0x2de92c6f 0x4a7484aa 0x5cb0a9dc 0x76f988da\r\n0x983e5152 0xa831c66d 0xb00327c8 0xbf597fc7 0xc6e00bf3 0xd5a79147 0x06ca6351 0x14292967\r\n0x27b70a85 0x2e1b2138 0x4d2c6dfc 0x53380d13 0x650a7354 0x766a0abb 0x81c2c92e 0x92722c85\r\n0xa2bfe8a1 0xa81a664b 0xc24b8b70 0xc76c51a3 0xd192e819 0xd6990624 0xf40e3585 0x106aa070\r\n0x19a4c116 0x1e376c08 0x2748774c 0x34b0bcb5 0x391c0cb3 0x4ed8aa4a 0x5b9cca4f 0x682e6ff3\r\n0x748f82ee 0x78a5636f 0x84c87814 0x8cc70208 0x90befffa 0xa4506ceb 0xbef9a3f7 0xc67178f2";
+List<string> consts = new List<string>();
+string constsString = "0x428a2f98 0x71374491 0xb5c0fbcf 0xe9b5dba5 0x3956c25b 0x59f111f1 0x923f82a4 0xab1c5ed5\r\n0xd807aa98 0x12835b01 0x243185be 0x550c7dc3 0x72be5d74 0x80deb1fe 0x9bdc06a7 0xc19bf174\r\n0xe49b69c1 0xefbe4786 0x0fc19dc6 0x240ca1cc 0x2de92c6f 0x4a7484aa 0x5cb0a9dc 0x76f988da\r\n0x983e5152 0xa831c66d 0xb00327c8 0xbf597fc7 0xc6e00bf3 0xd5a79147 0x06ca6351 0x14292967\r\n0x27b70a85 0x2e1b2138 0x4d2c6dfc 0x53380d13 0x650a7354 0x766a0abb 0x81c2c92e 0x92722c85\r\n0xa2bfe8a1 0xa81a664b 0xc24b8b70 0xc76c51a3 0xd192e819 0xd6990624 0xf40e3585 0x106aa070\r\n0x19a4c116 0x1e376c08 0x2748774c 0x34b0bcb5 0x391c0cb3 0x4ed8aa4a 0x5b9cca4f 0x682e6ff3\r\n0x748f82ee 0x78a5636f 0x84c87814 0x8cc70208 0x90befffa 0xa4506ceb 0xbef9a3f7 0xc67178f2";
+foreach (var cc in constsString.ToCharArray().ToList())
+{
+    string integer = string.Empty;
+    if (cc!=' ')
+    {
+        integer += cc;
+    }
+    else
+    {
+        if(integer.Length != 0) 
+        { 
+            uint num = uint.Parse(integer);
+            integer = Get01CodeFor32bit(num);
+            consts.Add(integer);
+        }
+    }
+}
+
 var a = h0;
 var b = h1 ;
 var c = h2 ;
@@ -502,8 +521,9 @@ uint Word32ToInt(string word)
     return (uint)res;
 }
 
-void Mutate (int a,uint b,int c,uint d,int e,uint f ,int g,int h)
+void Mutate (uint a,uint b, uint c,uint d, uint e,uint f , uint g, uint h)
 {
+    /////////////////////////////////////////////////////////////
     string codeA = Get01CodeFor32bit((ulong)a);
     string codeB = Get01CodeFor32bit((ulong)b);
     string codeC = Get01CodeFor32bit((ulong)c);
@@ -513,22 +533,65 @@ void Mutate (int a,uint b,int c,uint d,int e,uint f ,int g,int h)
     string codeG = Get01CodeFor32bit((ulong)g);
     string codeH = Get01CodeFor32bit((ulong)h);
 
-    var eROT6 = RightRotate(6, codeE);
-    var eROT11 = RightRotate(11, codeE);
-    var eROT25 = RightRotate(25, codeE);
-    var s1 = ConvertXOR(eROT11, eROT25, eROT6);
-
-    var eANDf = ConvertAND2(codeE, codeF);
-
-    string not_e = string.Empty;
-    foreach (var cha in codeE.ToCharArray().ToList())
+    for (int i = 0; i < 64; i++)
     {
-        if(cha == '0')
-            not_e += "1";
-        else
-            not_e += "0";
+        var eROT6 = RightRotate(6, codeE);
+        var eROT11 = RightRotate(11, codeE);
+        var eROT25 = RightRotate(25, codeE);
+        var s1 = ConvertXOR(eROT11, eROT25, eROT6);
+
+        var eANDf = ConvertAND2(codeE, codeF);
+
+        string not_e = string.Empty;
+        foreach (var cha in codeE.ToCharArray().ToList())
+        {
+            if (cha == '0')
+                not_e += "1";
+            else
+                not_e += "0";
+        }
+
+        var not_eANDg = ConvertAND2(not_e, codeG);
+        var ch = ConvertXOR2(eANDf, not_eANDg);
+        var temp1 = Word32ToInt(codeH) + Word32ToInt(s1) + Word32ToInt(ch) + Word32ToInt(consts[i]) + Word32ToInt(result32array[i]);
+
+        var aROT2 = RightRotate(2, codeA);
+        var aROT13 = RightRotate(13, codeA);
+        var aROT22 = RightRotate(22, codeA);
+        var s0 = ConvertXOR(aROT2, aROT13, aROT22);
+
+        var aANDb = ConvertAND2(codeA, codeB);
+        var aANDc = ConvertAND2(codeA, codeC);
+        var cANDb = ConvertAND2(codeC, codeB);
+        var maj = ConvertXOR(aANDb, aANDc, cANDb);
+
+        var temp2 = Word32ToInt(s0) + Word32ToInt(maj);
+
+        codeH = codeG;
+        codeG = codeF;
+        codeF = codeE;
+        codeE = Get01CodeFor32bit((ulong)Word32ToInt(codeD) + (ulong)temp1);
+        codeD = codeC;
+        codeC  = codeB;
+        codeB = codeA;
+        codeA = Get01CodeFor32bit((ulong)temp1 + (ulong)temp2);
     }
-    
-    var not_eANDg = ConvertAND2(not_e, codeG);
-    var ch = ConvertXOR2(eANDf, not_eANDg);
+
+    h0 += Word32ToInt(codeA);
+    h1 += Word32ToInt(codeB);
+    h2 += Word32ToInt(codeC);
+    h3 += Word32ToInt(codeD);
+    h4 += Word32ToInt(codeE);
+    h5 += Word32ToInt(codeF);
+    h6 += Word32ToInt(codeG);
+    h7 += Word32ToInt(codeH);
+
+    Console.WriteLine(h0);
+    Console.WriteLine(h1);
+    Console.WriteLine(h2);
+    Console.WriteLine(h3);
+    Console.WriteLine(h4);
+    Console.WriteLine(h5);
+    Console.WriteLine(h6);
+    Console.WriteLine(h7);
 }
