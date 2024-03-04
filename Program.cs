@@ -1,4 +1,5 @@
 ﻿using System.Text;
+
 Console.WriteLine("Введите строку для преобразования");
 string s = Console.ReadLine();
 byte[] ascii = Encoding.UTF8.GetBytes(s);
@@ -26,7 +27,6 @@ for (int i = 0; i < additionalZeros; i++)
 
 //result с 512 символов
 result += bigEnd;
-
 
 //результат из 16ти 32-битных слов
 string result32=string.Empty;
@@ -67,11 +67,6 @@ result32array.RemoveAt(64);
 
 result32array = Convert32WordArray(result32array);
 
-//Console.WriteLine();
-//foreach (var str in result32array)
-//    Console.WriteLine(str);
-
-///////////////////////////////////////////////////////all good
 //// значения хеша (8)
 uint h0 = 0x6a09e667;
 uint h1 = 0xbb67ae85;
@@ -150,22 +145,6 @@ List<uint> consts =
     0xbef9a3f7,
     0xc67178f2,
 ];
-//foreach (var cc in constsString.ToCharArray().ToList())
-//{
-//    if (cc!=' ')
-//    {
-//        integer += cc;
-//    }
-//    else
-//    {
-//        if(integer.Length != 0) 
-//        { 
-//            uint num =(uint)(int.Parse(integer));
-//            integer = Get01CodeFor32bit(num);
-//            consts.Add(integer);
-//        }
-//    }
-//}
 
 var a = h0;
 var b = h1 ;
@@ -177,8 +156,6 @@ var g = h6;
 var h = h7;
 
 Mutate(a, b, c, d, e, f, g, h);
-
-
 
 string Get01Code(int b)
 {
@@ -209,7 +186,7 @@ string Get01Code(int b)
 string Get01CodeFor32bit(ulong b)
 {
     string result = string.Empty;
-    //Console.WriteLine($"get32bitfornum: {b}");
+
     ulong i = b;
 
     do
@@ -219,15 +196,12 @@ string Get01CodeFor32bit(ulong b)
     }
     while (i >= 2);
     result += i.ToString();
-   // Console.WriteLine($"res: {result}, rescnt: {result.Count()}");
 
     var resultChar = result.ToCharArray().Reverse();
     result = string.Empty;
 
     foreach (char c in resultChar)
         result += c;
-
-    //Console.WriteLine($"res: {result}, rescnt: {result.Count()}");
 
     if (result.Length > 32)
     {
@@ -251,8 +225,6 @@ string Get01CodeFor32bit(ulong b)
         for (int a = result.Length; a < 32; a++)
             result = '0' + result;
     }
-   // Console.WriteLine($"res: {result}, rescnt: {result.Count()}");
-
 
     return result;
 }
@@ -261,30 +233,19 @@ List<string> Convert32WordArray(List<string> words)
 {
     for (int i = 16; i < 64; i++)
     {
-        //Console.WriteLine($"word {i}");
         var w1 = RightRotate(7, words[i - 15]);
         var w2 = RightRotate(18, words[i - 15]);
         var w3 = RightShift(3, words[i - 15]);
-        //Console.WriteLine($"w1 {w1}");
-       // Console.WriteLine($"w2 {w2}");
-       // Console.WriteLine($"w3 {w3}");
         //s0=w1 xor w2 xor w3
         string s0 = ConvertXOR(w1, w2, w3);
-       // Console.WriteLine($"s0 {s0}");
 
         var w10 = RightRotate(17, words[i - 2]);
         var w20 = RightRotate(19, words[i - 2]);
         var w30 = RightShift(10, words[i - 2]);
-       //Console.WriteLine($"w10 {w10}");
-       //Console.WriteLine($"w20 {w20}");
-       //Console.WriteLine($"w30 {w30}");
         //s1=w10 xor w20 xor w30
         string s1 = ConvertXOR(w10, w20, w30);
-        //Console.WriteLine($"s1 {s1}");
 
         words[i] = CountWord(words[i-16], s0, words[i-7], s1);
-       // Console.WriteLine(words[i]);
-      //  Console.WriteLine();
     }
 
     return words;
@@ -292,58 +253,17 @@ List<string> Convert32WordArray(List<string> words)
 
 string RightRotate(int rotations, string str)
 {
-    //Console.WriteLine($"rotating {rotations}, before:{str}");
-
     var word1 = str.ToCharArray().ToList();
-    //foreach ( var word in word1)
-    //{
-    //    Console.Write($"{word}");
-    //}
 
     for (int a = 0; a < rotations; a++)
     {
-       // Console.WriteLine($"rotation {a}");
         var wNew = str.ToCharArray().ToList();
 
-        //foreach (var word in word1)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
-        //foreach (var word in wNew)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
-
-            for (int c=1;c<32;c++)
-            {
-                    wNew[c] = word1[c-1];
-
-
-            //foreach (var word in word1)
-            //{
-            //    Console.Write($"{word}");
-            //}
-            //Console.WriteLine();
-            //foreach (var word in wNew)
-            //{
-            //    Console.Write($"{word}");
-            //}
-            //Console.WriteLine();
+        for (int c=1;c<32;c++)
+        {
+            wNew[c] = word1[c-1];
         }
-            wNew[0] = word1.Last();
-
-        //foreach (var word in word1)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
-        //foreach (var word in wNew)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
+        wNew[0] = word1.Last();
 
         word1 = wNew;
     }
@@ -353,59 +273,22 @@ string RightRotate(int rotations, string str)
     {
         res += c;
     }
-    //Console.WriteLine($"rotating {rotations}, after:{res}");
     return res;
 }
 
 string RightShift(int shifts, string str)
 {
     var w1 = str.ToCharArray().ToList();
-   // Console.WriteLine($"w1:{str}");
 
     for (int a = 0; a < shifts; a++)
     {
-         //Console.WriteLine($"shift {a}");
         var wNew = str.ToCharArray().ToList();
-
-        //foreach (var word in word1)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
-        //foreach (var word in wNew)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
 
         for (int c = 1; c < 32; c++)
         {
             wNew[c] = w1[c - 1];
-
-
-            //foreach (var word in word1)
-            //{
-            //    Console.Write($"{word}");
-            //}
-            //Console.WriteLine();
-            //foreach (var word in wNew)
-            //{
-            //    Console.Write($"{word}");
-            //}
-            //Console.WriteLine();
         }
         wNew[0] = '0';
-
-        //foreach (var word in word1)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
-        //foreach (var word in wNew)
-        //{
-        //    Console.Write($"{word}");
-        //}
-        //Console.WriteLine();
 
         w1 = wNew;
     }
@@ -415,7 +298,6 @@ string RightShift(int shifts, string str)
     {
         res += c;
     }
-    //Console.WriteLine(res); ;
     return res;
 }
 
@@ -424,22 +306,9 @@ string ConvertXOR (string w1, string w2, string w3)
     var c1 = w1.ToCharArray().ToList();
     var c2 = w2.ToCharArray().ToList();
     var c3 = w3.ToCharArray().ToList();
-   // Console.WriteLine($"XOR c1:{w1}");
-   // Console.WriteLine($"XOR c2:{w2}");
-   // Console.WriteLine($"XOR c3:{w3}");
-
+  
     string res = string.Empty;
-    //uint c1 = Word32ToInt(w1);
-    //uint c2 = Word32ToInt(w2);
-    //uint c3 = Word32ToInt(w2);
-    //Console.WriteLine($"int c1:{c1}");
-    //Console.WriteLine($"int c2:{c2}");
-    //Console.WriteLine($"int c3:{c3}");
-
-    //ulong summ = c1 + c2 + c3;                  //error
-    //                                            //error
-    //string res = Get01CodeFor32bit(summ);       //error
-    
+   
     for(int i=0;i<32;i++)
     {
         if (c1[i]== '0' &&c2[i] == '0'&& c3[i] == '0')
@@ -460,8 +329,6 @@ string ConvertXOR (string w1, string w2, string w3)
             res += '1';
 
     }
-
-    //Console.WriteLine(res);
     return res;
 }
 
@@ -469,22 +336,9 @@ string ConvertXOR2(string w1, string w2)
 {
     var c1 = w1.ToCharArray().ToList();
     var c2 = w2.ToCharArray().ToList();
-    // Console.WriteLine($"XOR c1:{w1}");
-   //  Console.WriteLine($"XOR c2:{w2}");
-    // Console.WriteLine($"XOR c3:{w3}");
 
     string res = string.Empty;
-    //uint c1 = Word32ToInt(w1);
-    //uint c2 = Word32ToInt(w2);
-    //uint c3 = Word32ToInt(w2);
-    //Console.WriteLine($"int c1:{c1}");
-    //Console.WriteLine($"int c2:{c2}");
-    //Console.WriteLine($"int c3:{c3}");
-
-    //ulong summ = c1 + c2 + c3;                  //error
-    //                                            //error
-    //string res = Get01CodeFor32bit(summ);       //error
-
+   
     for (int i = 0; i < 32; i++)
     {
         if (c1[i] == '0' && c2[i] == '0' )
@@ -498,28 +352,15 @@ string ConvertXOR2(string w1, string w2)
         
     }
 
-    //Console.WriteLine(res);
     return res;
 }
+
 string ConvertAND2(string w1, string w2)
 {
     var c1 = w1.ToCharArray().ToList();
     var c2 = w2.ToCharArray().ToList();
-     //Console.WriteLine($"and c1:{w1}");
-     //Console.WriteLine($"and c2:{w2}");
-    // Console.WriteLine($"XOR c3:{w3}");
 
     string res = string.Empty;
-    //uint c1 = Word32ToInt(w1);
-    //uint c2 = Word32ToInt(w2);
-    //uint c3 = Word32ToInt(w2);
-    //Console.WriteLine($"int c1:{c1}");
-    //Console.WriteLine($"int c2:{c2}");
-    //Console.WriteLine($"int c3:{c3}");
-
-    //ulong summ = c1 + c2 + c3;                  //error
-    //                                            //error
-    //string res = Get01CodeFor32bit(summ);       //error
 
     for (int i = 0; i < 32; i++)
     {
@@ -534,29 +375,17 @@ string ConvertAND2(string w1, string w2)
 
     }
 
-    //Console.WriteLine(res);
     return res;
 }
+
 string CountWord(string w1, string s0, string w2, string s1)
 {
-   // Console.WriteLine("countWord");
-   //
-   // Console.WriteLine($"str w1 : {w1}");
-   // Console.WriteLine($"str w2: {w2}");
-   // Console.WriteLine($"str s0: {s0}");
-   // Console.WriteLine($"str s1: {s1}");
     var c1 = Word32ToInt(w1);
     var c2 = Word32ToInt(w2);
     var c3 = Word32ToInt(s1);
     var c4 = Word32ToInt(s0);
-  // Console.WriteLine($"int : {c1}");
-  // Console.WriteLine($"int : {c2}");
-  // Console.WriteLine($"int : {c3}");
-  // Console.WriteLine($"int : {c4}");
 
     string intWord = Get01CodeFor32bit(c1 + c2 + c3 + c4);
-
-   // Console.WriteLine($"sum : {intWord}");
 
     List<char> chars = [.. intWord];
 
@@ -588,7 +417,6 @@ uint Word32ToInt(string word)
 
 void Mutate (uint a,uint b, uint c,uint d, uint e,uint f , uint g, uint h)
 {
-    /////////////////////////////////////////////////////////////
     string codeA = Get01CodeFor32bit((ulong)a);
     string codeB = Get01CodeFor32bit((ulong)b);
     string codeC = Get01CodeFor32bit((ulong)c);
@@ -598,32 +426,15 @@ void Mutate (uint a,uint b, uint c,uint d, uint e,uint f , uint g, uint h)
     string codeG = Get01CodeFor32bit((ulong)g);
     string codeH = Get01CodeFor32bit((ulong)h);
 
-    //Console.WriteLine($"a: {codeA}");
-    //Console.WriteLine($"b: {codeB}");
-    //Console.WriteLine($"c: {codeC}");
-    //Console.WriteLine($"d: {codeD}");
-    //Console.WriteLine($"e: {codeE}");
-    //Console.WriteLine($"f: {codeF}");
-    //Console.WriteLine($"g: {codeG}");
-    //Console.WriteLine($"h: {codeH}");
-
-
     for (int i = 0; i < 64; i++)
     {
         var eROT6 = RightRotate(6, codeE);
         var eROT11 = RightRotate(11, codeE);
         var eROT25 = RightRotate(25, codeE);
 
-        //Console.WriteLine($"erot6: {eROT6}");
-        //Console.WriteLine($"erot11: {eROT11}");
-        //Console.WriteLine($"erot25: {eROT25}");
-
         var s1 = ConvertXOR(eROT11, eROT25, eROT6);
-        //Console.WriteLine($"xor erot11 25 6 : {s1}");
 
         var eANDf = ConvertAND2(codeE, codeF);
-        //Console.WriteLine($"eandf : {eANDf}");
-
 
         string not_e = string.Empty;
         foreach (var cha in codeE.ToCharArray().ToList())
@@ -633,24 +444,13 @@ void Mutate (uint a,uint b, uint c,uint d, uint e,uint f , uint g, uint h)
             else
                 not_e += "0";
         }
-       // Console.WriteLine($"notE: {not_e}");
 
         var not_eANDg = ConvertAND2(not_e, codeG);
-        //Console.WriteLine($"not_eANDg : {not_eANDg}");
 
         var ch = ConvertXOR2(eANDf, not_eANDg);
-        //Console.WriteLine($"ch : {ch}");
-
-       //Console.WriteLine($"h: {codeH}");
-       //Console.WriteLine($"s1: {s1}");
-       //Console.WriteLine($"ch: {ch}");
-       //Console.WriteLine($"k: {consts[i]}");
-       //Console.WriteLine($"w: {result32array[i]}");
 
         var temp1 = Word32ToInt(codeH) + Word32ToInt(s1) + Word32ToInt(ch) + consts[i] + Word32ToInt(result32array[i]);
-        //Console.WriteLine($"temp1: {temp1}");
         string  t1 = Get01CodeFor32bit(temp1);
-       // Console.WriteLine($"t1: {t1}");
 
         var aROT2 = RightRotate(2, codeA);
         var aROT13 = RightRotate(13, codeA);
@@ -682,15 +482,6 @@ void Mutate (uint a,uint b, uint c,uint d, uint e,uint f , uint g, uint h)
     h5 += Word32ToInt(codeF);
     h6 += Word32ToInt(codeG);
     h7 += Word32ToInt(codeH);
-
-    //Console.WriteLine(Get01CodeFor32bit( h0));
-    //Console.WriteLine(Get01CodeFor32bit( h1));
-    //Console.WriteLine(Get01CodeFor32bit( h2));
-    //Console.WriteLine(Get01CodeFor32bit( h3));
-    //Console.WriteLine(Get01CodeFor32bit( h4));
-    //Console.WriteLine(Get01CodeFor32bit( h5));
-    //Console.WriteLine(Get01CodeFor32bit( h6));
-    //Console.WriteLine(Get01CodeFor32bit( h7));
 
     Console.WriteLine();
     Console.Write(Convert.ToString(h0, 16).ToUpper());
